@@ -44,7 +44,8 @@
 
   --container: 1240px;
   --gutter: clamp(16px, 4vw, 40px);
-  --sat: env(safe-area-inset-top, 0px);
+  /* spazio della barra di stato di iPhone + 10px extra solo quando la pagina è sotto la barra */
+  --sat: calc(env(safe-area-inset-top, 0px) + min(env(safe-area-inset-top, 0px), 10px));
   --header-h: calc(76px + var(--sat)); /* include la barra di stato di iPhone */
 }
 
