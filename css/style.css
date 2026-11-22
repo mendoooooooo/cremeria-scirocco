@@ -1302,3 +1302,18 @@ html[lang="it"] [data-only-en] { display: none; }
   transition: none !important; will-change: auto;
 }
 .menu-open .site-header::before { display: none; }
+
+/* niente effetto elastico/rimbalzo di fine scorrimento (Android "stretch", iOS "bounce"):
+   è quello che spostava di poco anche l'header fisso mentre si scorre su mobile */
+html, body { overscroll-behavior-y: none; }
+html { background: var(--blu-notte); }
+
+/* recensioni: nome sempre su una riga, stelle sempre della stessa misura (spostate in alto a destra della card) */
+.review { position: relative; }
+.review footer { flex-wrap: nowrap; }
+.review footer > span:not(.avatar):not(.stars) { min-width: 0; flex: 1; }
+.review footer b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.review footer .stars { position: absolute; top: 30px; right: 26px; margin: 0; }
+.stars { flex: none; }
+.stars svg { flex: none; }
+.review .stars svg, .review footer .stars svg { width: 16px; height: 16px; }
