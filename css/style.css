@@ -1328,3 +1328,13 @@ html { background: var(--blu-notte); }
 /* iPhone/iPad durante lo scorrimento: header 14px più in basso dentro il suo sfondo, così sembra fermo */
 html.ios-scrolled .site-header { padding-top: calc(var(--sat) + 14px); height: calc(var(--header-h) + 14px); }
 html.ios-scrolled.menu-open .site-header { padding-top: var(--sat); height: var(--header-h); }
+
+/* menu mobile aperto: l'header resta fermo in cima con lo stesso blu del menu (sembra parte del menu
+   ma copre le voci che scorrono sotto); lo scorrimento resta dentro il menu e non muove la pagina */
+html.menu-open .site-header, html.menu-open .site-header.is-scrolled, html.menu-open .site-header.is-solid { background: var(--blu-notte) !important; }
+.mobile-menu { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+html.menu-open body { overflow: hidden; }
+
+/* menu aperto: barra azioni rapide e "torna su" spariscono subito e il menu sta sopra di loro */
+.mobile-menu { z-index: 98; }
+html.menu-open .quickbar, html.menu-open .to-top { opacity: 0; visibility: hidden; pointer-events: none; transition: none; }
