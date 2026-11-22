@@ -26,7 +26,12 @@
       header.classList.toggle("is-scrolled", y > 30);
       // iPhone/iPad: appena si scorre, Safari porta la pagina un po' sotto la barra di stato;
       // l'header scende di qualche pixel così logo e pulsanti restano alla stessa altezza
-      if (IOS) doc.classList.toggle("ios-scrolled", y > 4);
+      // Safari nasconde le sue barre quando si scorre verso il basso e le fa ricomparire
+      // scorrendo verso l'alto: lo spazio extra serve solo nel primo caso
+      if (IOS) {
+        if (y <= 4 || y < lastY - 2) doc.classList.remove("ios-scrolled");
+        else if (y > lastY + 2) doc.classList.add("ios-scrolled");
+      }
     }
     if (toTop) {
       toTop.classList.toggle("is-visible", y > 700);
