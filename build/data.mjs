@@ -13,7 +13,7 @@ export const INFO = {
   maps: "https://www.google.com/maps/place/?q=place_id:ChIJUyD_a2UrfkcR1rRUwzv2Ek8",
   directions: "https://www.google.com/maps/dir/?api=1&destination=Cremeria+Scirocco%2C+Via+Agostino+Barelli+1c%2C+Bologna&destination_place_id=ChIJUyD_a2UrfkcR1rRUwzv2Ek8",
   review: "https://search.google.com/local/writereview?placeid=ChIJUyD_a2UrfkcR1rRUwzv2Ek8",
-  reviewsAll: "https://www.google.com/maps/search/?api=1&query=Cremeria%20Scirocco%20Bologna&query_place_id=ChIJUyD_a2UrfkcR1rRUwzv2Ek8",
+  reviewsAll: "https://www.google.com/maps/place/Cremeria+Scirocco/@44.4952804,11.4009997,17z/data=!4m8!3m7!1s0x477e2b656bff2053:0x4f12f63bc354b4d6!8m2!3d44.4952804!4d11.4009997!9m1!1b1!16s%2Fg%2F1tf_g7mr",
   mapEmbed: "https://maps.google.com/maps?q=Cremeria%20Scirocco%2C%20Via%20Agostino%20Barelli%201c%2C%2040138%20Bologna&z=16&hl=it&output=embed",
   facebook: "https://www.facebook.com/cremeriascirocco",
   instagram: "https://www.instagram.com/cremeriascirocco/",
