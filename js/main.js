@@ -5,7 +5,6 @@
   var doc = document.documentElement;
   var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (IOS) document.documentElement.classList.add("ios");
   var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
@@ -29,7 +28,7 @@
       // l'header scende di qualche pixel così logo e pulsanti restano alla stessa altezza
       // Safari nasconde le sue barre quando si scorre verso il basso e le fa ricomparire
       // scorrendo verso l'alto: lo spazio extra serve solo nel primo caso
-      if (false && IOS) { // compensazione iPhone disattivata: il movimento era causato da overflow su html
+      if (IOS) {
         if (y <= 4 || y < lastY - 2) doc.classList.remove("ios-scrolled");
         else if (y > lastY + 2) doc.classList.add("ios-scrolled");
       }

@@ -59,7 +59,7 @@ body {
   color: var(--testo);
   background: var(--crema);
   -webkit-font-smoothing: antialiased;
-  overflow-x: visible;
+  overflow-x: hidden;
 }
 img, svg, video, canvas { display: block; max-width: 100%; }
 img { height: auto; }
@@ -1100,10 +1100,9 @@ form[data-contact] button[type=submit] { width: 100%; min-height: 56px; }
    ========================================================= */
 
 /* niente scorrimento orizzontale in nessuna pagina */
-/* niente overflow sulla pagina principale (html/body): su iPhone (Safari) fa scorrere gli elementi fissi con la pagina.
-   Lo scorrimento orizzontale si blocca sezione per sezione. */
+html, body { overflow-x: clip; }
 main, main > section, .site-footer { overflow-x: clip; }
-@supports not (overflow: clip) { main > section, .site-footer { overflow-x: hidden; } }
+@supports not (overflow: clip) { html, body { overflow-x: hidden; } }
 
 /* barra di scorrimento integrata: quella del sistema sparisce, la nostra galleggia sopra il sito */
 html.custom-scroll { scrollbar-width: none; }
@@ -1307,7 +1306,7 @@ html[lang="it"] [data-only-en] { display: none; }
 
 /* niente effetto elastico/rimbalzo di fine scorrimento (Android "stretch", iOS "bounce"):
    è quello che spostava di poco anche l'header fisso mentre si scorre su mobile */
-/* effetto elastico lasciato al browser */
+html, body { overscroll-behavior-y: none; }
 html { background: var(--blu-notte); }
 
 /* recensioni: nome sempre su una riga, stelle sempre della stessa misura (spostate in alto a destra della card) */
@@ -1327,15 +1326,5 @@ html { background: var(--blu-notte); }
 .menu-open .site-header { padding-top: var(--sat); }
 
 /* iPhone/iPad durante lo scorrimento: header 14px più in basso dentro il suo sfondo, così sembra fermo */
-html.ios-scrolled .site-header { transform: translate3d(0, 14px, 0); }
-html.ios-scrolled.menu-open .site-header { transform: translate3d(0, 0, 0); }
-/* spostamento morbido dell'header su iPhone (solo transform: fluido, senza ricalcolo della pagina) */
-.site-header { transition: transform .45s var(--ease-out), background-color .4s var(--ease-out), box-shadow .4s, backdrop-filter .4s; }
-.site-header::before { height: 160px; }
-@media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
-
-/* iPhone: niente fessura sopra l'header durante lo spostamento.
-   La fascia di sfondo sopra è blu pieno e si sovrappone di 2px; l'header scorso è blu pieno. */
-html.ios .site-header.is-scrolled, html.ios .site-header.is-solid { background: var(--blu-notte); backdrop-filter: none; -webkit-backdrop-filter: none; }
-html.ios .site-header::before { background: var(--blu-notte); bottom: calc(100% - 2px); }
-html.ios .site-header:not(.is-scrolled):not(.is-solid)::before { display: none; }
+html.ios-scrolled .site-header { padding-top: calc(var(--sat) + 14px); height: calc(var(--header-h) + 14px); }
+html.ios-scrolled.menu-open .site-header { padding-top: var(--sat); height: var(--header-h); }
