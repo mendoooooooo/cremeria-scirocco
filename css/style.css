@@ -1338,3 +1338,8 @@ html.menu-open body { overflow: hidden; }
 /* menu aperto: barra azioni rapide e "torna su" spariscono subito e il menu sta sopra di loro */
 .mobile-menu { z-index: 98; }
 html.menu-open .quickbar, html.menu-open .to-top { opacity: 0; visibility: hidden; pointer-events: none; transition: none; }
+
+/* Safari iOS: il menu copre tutto lo schermo, anche la fascia dietro la barra in basso del browser
+   (100lvh = altezza con le barre ritirate, + margine); spazio in fondo per raggiungere le ultime voci */
+.mobile-menu { bottom: auto; height: 100vh; height: calc(100lvh + 120px); padding-bottom: calc(240px + env(safe-area-inset-bottom, 0px)); }
+html.menu-open, html.menu-open body { background: var(--blu-notte); }
