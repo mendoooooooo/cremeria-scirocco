@@ -20,7 +20,7 @@ export const INFO = {
   twitter: "https://twitter.com/GelatoScirocco",
   ingredienti: "https://gest.cooki.it/public/cremeria_scirocco",
   gustiLive: "https://www.cremeriascirocco.it/gusti-di-gelato/",
-  corsi: "https://www.corsi.andreabandiera.it/",
+  corsi: "https://www.andreabandiera.it/",
   software: "https://www.readytgo.com/",
   rating: 4.6,
   reviewsCount: 1488,
