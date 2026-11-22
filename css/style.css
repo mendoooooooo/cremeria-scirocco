@@ -1100,9 +1100,10 @@ form[data-contact] button[type=submit] { width: 100%; min-height: 56px; }
    ========================================================= */
 
 /* niente scorrimento orizzontale in nessuna pagina */
-html { overflow-x: clip; } /* solo sulla pagina principale: su iPhone, se lo ha anche body, gli elementi fissi scorrono con la pagina */
+/* niente overflow sulla pagina principale (html/body): su iPhone (Safari) fa scorrere gli elementi fissi con la pagina.
+   Lo scorrimento orizzontale si blocca sezione per sezione. */
 main, main > section, .site-footer { overflow-x: clip; }
-@supports not (overflow: clip) { html { overflow-x: hidden; } }
+@supports not (overflow: clip) { main > section, .site-footer { overflow-x: hidden; } }
 
 /* barra di scorrimento integrata: quella del sistema sparisce, la nostra galleggia sopra il sito */
 html.custom-scroll { scrollbar-width: none; }
@@ -1306,7 +1307,7 @@ html[lang="it"] [data-only-en] { display: none; }
 
 /* niente effetto elastico/rimbalzo di fine scorrimento (Android "stretch", iOS "bounce"):
    è quello che spostava di poco anche l'header fisso mentre si scorre su mobile */
-html { overscroll-behavior-y: none; }
+/* effetto elastico lasciato al browser */
 html { background: var(--blu-notte); }
 
 /* recensioni: nome sempre su una riga, stelle sempre della stessa misura (spostate in alto a destra della card) */

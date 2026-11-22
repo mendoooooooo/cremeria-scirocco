@@ -29,7 +29,7 @@
       // l'header scende di qualche pixel così logo e pulsanti restano alla stessa altezza
       // Safari nasconde le sue barre quando si scorre verso il basso e le fa ricomparire
       // scorrendo verso l'alto: lo spazio extra serve solo nel primo caso
-      if (IOS) {
+      if (false && IOS) { // compensazione iPhone disattivata: il movimento era causato da overflow su html
         if (y <= 4 || y < lastY - 2) doc.classList.remove("ios-scrolled");
         else if (y > lastY + 2) doc.classList.add("ios-scrolled");
       }
