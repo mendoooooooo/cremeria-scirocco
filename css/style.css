@@ -1294,3 +1294,11 @@ html[lang="it"] [data-only-en] { display: none; }
   background: inherit; pointer-events: none;
 }
 .quickbar { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+
+/* menu mobile aperto: header completamente trasparente, subito e in tutti i browser (anche Safari iOS) */
+.menu-open .site-header, .menu-open .site-header.is-scrolled, .menu-open .site-header.is-solid {
+  background: transparent !important; box-shadow: none !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  transition: none !important; will-change: auto;
+}
+.menu-open .site-header::before { display: none; }
