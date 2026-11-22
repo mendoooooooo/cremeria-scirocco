@@ -1326,5 +1326,9 @@ html { background: var(--blu-notte); }
 .menu-open .site-header { padding-top: var(--sat); }
 
 /* iPhone/iPad durante lo scorrimento: header 14px più in basso dentro il suo sfondo, così sembra fermo */
-html.ios-scrolled .site-header { padding-top: calc(var(--sat) + 14px); height: calc(var(--header-h) + 14px); }
-html.ios-scrolled.menu-open .site-header { padding-top: var(--sat); height: var(--header-h); }
+html.ios-scrolled .site-header { transform: translate3d(0, 14px, 0); }
+html.ios-scrolled.menu-open .site-header { transform: translate3d(0, 0, 0); }
+/* spostamento morbido dell'header su iPhone (solo transform: fluido, senza ricalcolo della pagina) */
+.site-header { transition: transform .45s var(--ease-out), background-color .4s var(--ease-out), box-shadow .4s, backdrop-filter .4s; }
+.site-header::before { height: 160px; }
+@media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
