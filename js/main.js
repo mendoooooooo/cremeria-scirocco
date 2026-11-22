@@ -3,6 +3,7 @@
 (function () {
   "use strict";
   var doc = document.documentElement;
+  var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   var $ = function (s, c) { return (c || document).querySelector(s); };
@@ -23,6 +24,9 @@
     var max = document.documentElement.scrollHeight - innerHeight;
     if (header) {
       header.classList.toggle("is-scrolled", y > 30);
+      // iPhone/iPad: appena si scorre, Safari porta la pagina un po' sotto la barra di stato;
+      // l'header scende di qualche pixel così logo e pulsanti restano alla stessa altezza
+      if (IOS) doc.classList.toggle("ios-scrolled", y > 4);
     }
     if (toTop) {
       toTop.classList.toggle("is-visible", y > 700);
