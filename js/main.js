@@ -5,6 +5,7 @@
   var doc = document.documentElement;
   var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (IOS) document.documentElement.classList.add("ios");
   var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
