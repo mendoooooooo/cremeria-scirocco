@@ -44,7 +44,8 @@
 
   --container: 1240px;
   --gutter: clamp(16px, 4vw, 40px);
-  --header-h: 76px;
+  --sat: env(safe-area-inset-top, 0px);
+  --header-h: calc(76px + var(--sat)); /* include la barra di stato di iPhone */
 }
 
 /* ---------- reset ---------- */
@@ -198,10 +199,10 @@ em.accent, .accent { font-style: italic; color: var(--magenta); font-variation-s
 .mobile-menu {
   position: fixed; inset: 0; z-index: 90; background: var(--blu-notte); color: var(--crema);
   padding: calc(var(--header-h) + 20px) var(--gutter) 120px; overflow-y: auto;
-  clip-path: circle(0 at calc(100% - 44px) 38px); visibility: hidden;
+  clip-path: circle(0 at calc(100% - 44px) calc(38px + var(--sat))); visibility: hidden;
   transition: clip-path .7s var(--ease-io), visibility 0s .7s;
 }
-.menu-open .mobile-menu { clip-path: circle(150% at calc(100% - 44px) 38px); visibility: visible; transition: clip-path .7s var(--ease-io), visibility 0s; }
+.menu-open .mobile-menu { clip-path: circle(150% at calc(100% - 44px) calc(38px + var(--sat))); visibility: visible; transition: clip-path .7s var(--ease-io), visibility 0s; }
 .menu-open { overflow: hidden; }
 .menu-open .site-header { background: transparent; box-shadow: none; backdrop-filter: none; }
 .mobile-menu nav > ul > li { opacity: 0; transform: translateY(18px); transition: opacity .5s var(--ease-out), transform .6s var(--ease-out); }
@@ -726,7 +727,7 @@ blockquote.quote cite { display: block; margin-top: 8px; font-family: var(--font
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (min-width: 900px) {
-  :root { --header-h: 84px; }
+  :root { --header-h: calc(84px + var(--sat)); }
   .hero-grid { grid-template-columns: 1.05fr .95fr; gap: 24px; }
   .hero-stage { height: min(78vh, 720px); margin: 0; }
   .hero-strip { display: block; }
@@ -1317,3 +1318,9 @@ html { background: var(--blu-notte); }
 .stars { flex: none; }
 .stars svg { flex: none; }
 .review .stars svg, .review footer .stars svg { width: 16px; height: 16px; }
+
+/* iPhone: l'header occupa anche lo spazio della barra di stato (ora, batteria), colorato di blu,
+   e i contenuti partono sotto; così logo e menu non finiscono mai sotto la barra */
+.site-header { box-sizing: border-box; padding-top: var(--sat); }
+.site-header:not(.is-scrolled):not(.is-solid) { background: linear-gradient(180deg, var(--blu-notte) var(--sat), transparent var(--sat)); }
+.menu-open .site-header { padding-top: var(--sat); }
