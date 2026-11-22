@@ -8,6 +8,8 @@ import { emit } from "./i18n.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = "https://www.cremeriascirocco.it/";
+// versione dei file CSS/JS: cambia a ogni build, così i browser scaricano sempre quelli aggiornati
+const V = Date.now().toString(36);
 
 /* ---------------- icone ---------------- */
 const I = {
@@ -82,7 +84,7 @@ __HREFLANG__
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=${V}">
 </head>`;
 }
 
@@ -180,7 +182,7 @@ function footer() {
 <div class="lightbox" role="dialog" aria-modal="true" aria-label="Immagine ingrandita"><button class="lightbox-close" type="button" aria-label="Chiudi">${I.close}</button><img src="" alt=""><p class="lightbox-caption"></p></div>
 <div class="cursor-glow" aria-hidden="true"></div><div class="cursor-dot" aria-hidden="true"></div>
 <script>window.SCIROCCO_ORARI=${JSON.stringify(ORARI.map(({ d, open, close }) => ({ d, open, close })))};</script>
-<script src="js/main.js" defer></script>`;
+<script src="js/main.js?v=${V}" defer></script>`;
 }
 
 const schema = `<script type="application/ld+json">${JSON.stringify({
@@ -284,7 +286,7 @@ const otherProducts = (except) => `
 <section class="section--tight" style="background:var(--crema-2)">
   <div class="container">
     <h2 class="h3 reveal" style="margin-bottom:24px">Scopri anche</h2>
-    <div class="other-products">${PRODOTTI.filter((p) => p.slug !== except).map((p, i) => `<a class="reveal" style="--d:${i * 0.05}s" href="${p.slug}.html"><span>${p.nome}</span>${I.arrow}</a>`).join("")}<a class="reveal" href="gusti.html"><span>Gusti di oggi</span>${I.arrow}</a></div>
+    <div class="other-products">${PRODOTTI.filter((p) => p.slug !== except).map((p, i) => `<a class="reveal" style="--d:${i * 0.05}s" href="${p.slug}.html"><i class="op-dot" style="--c:${p.color}"></i><span>${p.nome}</span>${I.arrow}</a>`).join("")}<a class="reveal" href="gusti.html"><i class="op-dot" style="--c:var(--verde)"></i><span>Gusti di oggi</span>${I.arrow}</a></div>
   </div>
 </section>`;
 
@@ -519,7 +521,7 @@ ${reviewsSection()}
 
 ${visitSection()}
 `,
-  extraScripts: `${schema}\n${faqSchema}\n<script src="js/hero3d.js" defer></script>`,
+  extraScripts: `${schema}\n${faqSchema}\n<script src="js/hero3d.js?v=${V}" defer></script>`,
 });
 
 /* ======================================================
@@ -580,8 +582,8 @@ page({
 </section>
 ${otherProducts("")}
 `,
-  extraScripts: `<script src="js/gusti-data.js"></script>
-<script src="js/gusti.js" defer></script>`,
+  extraScripts: `<script src="js/gusti-data.js?v=${V}"></script>
+<script src="js/gusti.js?v=${V}" defer></script>`,
 });
 
 /* ======================================================
@@ -806,7 +808,7 @@ page({
 ${pageHero({ crumb: "<span>Contatti</span>", title: 'Parliamone <em class="accent">davanti a un gelato</em>', lead: "Per una torta, un gusto su misura o una semplice domanda: chiamaci, scrivici o passa a trovarci.", actions: `<div class="hero-actions"><a class="btn magnetic" href="tel:${INFO.tel.replace(/\s/g, "")}">${I.phone}<span>${INFO.telLabel}</span></a><a class="btn btn--ghost" href="#torta"><span>Scrivici</span>${I.arrow}</a></div>` })}
 <section class="section" id="torta">
   <div class="container prose-grid">
-    <div class="form-card reveal">
+    <div class="form-card form-enter">
       <h2 class="h3">Richiedi una torta o un gusto su misura</h2>
       <p style="color:var(--testo-2)">Ti rispondiamo il prima possibile. Per richieste urgenti chiamaci.</p>
       <form class="form" data-validate data-contact novalidate>

@@ -161,10 +161,10 @@
     var sx = sc.getContext("2d"); var rg = sx.createRadialGradient(64, 64, 0, 64, 64, 64);
     rg.addColorStop(0, "rgba(0,0,0,.45)"); rg.addColorStop(1, "rgba(0,0,0,0)"); sx.fillStyle = rg; sx.fillRect(0, 0, 128, 128);
     var shadow = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.2), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sc), transparent: true, depthWrite: false }));
-    shadow.rotation.x = -Math.PI / 2; shadow.position.y = -3.75;
+    shadow.rotation.x = -Math.PI / 2; shadow.position.y = -3.35;
     scene.add(shadow);
 
-    group.position.y = -0.2;
+    group.position.y = 0.05;
     group.rotation.z = 0.12;
 
     /* dimensioni */
@@ -205,8 +205,8 @@
 
       group.rotation.y = t2 * 0.25 + cx * 0.9 + (1 - intro) * -2.2;
       group.rotation.x = cy * 0.25;
-      group.position.y = -0.2 + Math.sin(t2 * 1.1) * 0.12 + (1 - intro) * -3;
-      group.scale.setScalar(0.75 + intro * 0.25);
+      group.position.y = 0.05 + Math.sin(t2 * 1.1) * 0.12 + (1 - intro) * -3;
+      group.scale.setScalar(0.66 + intro * 0.2); // dimensione finale 0.86: il cono sta tutto nel riquadro
       shadow.material.opacity = 0.5 + Math.sin(t2 * 1.1) * 0.12;
       s2.rotation.y = Math.sin(t2 * 0.8) * 0.15;
       plaque.rotation.y = 0.4 + Math.sin(t2 * 1.4) * 0.12;

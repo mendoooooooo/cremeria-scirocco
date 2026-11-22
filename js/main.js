@@ -208,7 +208,7 @@
     var slides = $$(".review", track), dotsWrap = $(".dots", root);
     var prev = $("[data-prev]", root), next = $("[data-next]", root);
     var index = 0, perView = 1, pages = 1, timer = null, paused = false, inView = !("IntersectionObserver" in window);
-    var DELAY = 5000;
+    var DELAY = 3500;
     var bar = $(".c-progress .bar i", root), num = $(".c-progress .num", root);
     root.style.setProperty("--autoplay", DELAY + "ms");
 
