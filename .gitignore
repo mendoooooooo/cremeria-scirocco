@@ -1,0 +1,13 @@
+# Foto originali scaricate dal vecchio sito (servono solo per rigenerare img/ con build_img.py)
+_raw/
+
+# Configurazione locale dell'editor / anteprima
+.claude/
+
+# File generati durante l'estrazione dei testi da tradurre
+build/en.json
+
+# Sistema
+.DS_Store
+Thumbs.db
+node_modules/
