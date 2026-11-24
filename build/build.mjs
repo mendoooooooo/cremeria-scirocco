@@ -317,14 +317,15 @@ const asideOrder = (title = "Vuoi ordinare?", text = "Chiamaci o scrivici: ti ai
    HOME
    ====================================================== */
 const flavors = [
-  ["Mandorle al Gorgonzola", "Mandorla amara e dolce che si lega al Gorgonzola. Il gusto che spiazza (quasi) tutti.", "#C9B27A", "Miglior gusto gastronomico 2018", true],
-  ["Il mio pesto", "Pinoli, mandorle, pistacchio, scorza di limone, basilico, extravergine e sale.", "#8DB04A", "Gastronomico"],
-  ["Pistacchio di Raffadali", "Pistacchio siciliano: verde vero, sapore lungo, zero compromessi.", "#ABC96B", "Crema"],
-  ["Zabajone", "Zabajone classico con Marsala invecchiato oltre 20 anni: un tuffo nei ricordi.", "#E9C46A", "Classico di casa"],
-  ["Nocciola Alta Langa", "Nocciola trilobata dell’Alta Langa: tostatura elegante, gusto pieno e persistente.", "#B98552", "Crema"],
-  ["Blu", "Sorbetto con bergamotto, limone, arancio, anacardi e mandorla amara. Un tocco di spirulina blu.", "#3D8FD1", "Senza latte · senza uova"],
+  ["Mandorle al Gorgonzola", "Mandorla amara e dolce che si lega al Gorgonzola. Il gusto che spiazza (quasi) tutti.", "#C9B27A", "Miglior gusto gastronomico 2018", true, "Mandorle al Gorgonzola"],
+  ["Il mio pesto", "Pinoli, mandorle, pistacchio, scorza di limone, basilico, extravergine e sale.", "#8DB04A", "Gastronomico", "Il mio pesto"],
+  ["Pistacchio di Raffadali", "Pistacchio siciliano: verde vero, sapore lungo, zero compromessi.", "#ABC96B", "Crema", "Pistacchio"],
+  ["Zabajone", "Zabajone classico con Marsala invecchiato oltre 20 anni: un tuffo nei ricordi.", "#E9C46A", "Classico di casa", "Zabajone"],
+  ["Nocciola Alta Langa", "Nocciola trilobata dell’Alta Langa: tostatura elegante, gusto pieno e persistente.", "#B98552", "Crema", "Nocciola"],
+  ["Blu", "Sorbetto con bergamotto, limone, arancio, anacardi e mandorla amara. Un tocco di spirulina blu.", "#3D8FD1", "Senza latte · senza uova", "Blu"],
 ];
-const flavorCards = flavors.map(([n, d, c, t, hot], i) => `<article class="flavor tilt reveal" style="--c:${c};--d:${(i % 3) * 0.08}s"><div class="scoop" aria-hidden="true"></div><h3>${n}</h3><p>${d}</p><span class="tag${hot ? " tag--premio" : ""}">${t}</span></article>`).join("");
+// l'ultimo valore è il nome del gusto nel foglio Google (colonna Gusto): la colonna "Iconico" decide quali card mostrare
+const flavorCards = flavors.map((row, i) => { const [n, d, c, t] = row; const hot = row[4] === true; const key = row[row.length - 1]; return `<article class="flavor tilt reveal" data-gusto="${key}" style="--c:${c};--d:${(i % 3) * 0.08}s"><div class="scoop" aria-hidden="true"></div><h3>${n}</h3><p>${d}</p><span class="tag${hot ? " tag--premio" : ""}">${t}</span></article>`; }).join("");
 
 const productCards = PRODOTTI.map((p, i) => `<a class="product-card tilt reveal" style="--d:${(i % 3) * 0.08}s" href="${p.slug}.html">
   <div class="pc-img">${P(p.img, "", { sizes: "(min-width: 900px) 33vw, 100vw" })}</div>

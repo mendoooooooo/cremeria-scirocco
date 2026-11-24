@@ -252,22 +252,28 @@
     if (main) main.parentNode.insertBefore(bar, main);
   }
 
-  // gusti iconici della home dalla colonna "Iconico" del foglio
+  // gusti iconici della home: la colonna "Iconico" del foglio decide quali card mostrare.
+  // Le card originali (titolo, testo, etichetta, ordine, traduzione) restano quelle del sito;
+  // un gusto spuntato senza card originale viene aggiunto in fondo con i testi del foglio.
   var flavorGrid = $(".flavor-grid");
   var lastIconici = "";
+  function normName(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim(); }
   function paintIconici(list) {
     if (!flavorGrid || !list || !list.length) return;
     var key = JSON.stringify(list);
     if (key === lastIconici) return;
     lastIconici = key;
-    var dict = window.SCIROCCO_GUSTI_EN || {};
+    var scelti = list.map(function (g) { return normName(g.nome); });
+    var originali = $$(".flavor[data-gusto]", flavorGrid);
+    var presenti = originali.map(function (c) { return normName(c.getAttribute("data-gusto")); });
+    originali.forEach(function (c, k) { c.hidden = scelti.indexOf(presenti[k]) === -1; });
+    $$(".flavor--foglio", flavorGrid).forEach(function (c) { flavorGrid.removeChild(c); });
     var TIPO = EN ? { uova: "Egg-based cream", latte: "Cream", sorbetto: "No milk · no eggs" } : { uova: "Crema all’uovo", latte: "Crema", sorbetto: "Senza latte · senza uova" };
-    flavorGrid.textContent = "";
-    list.forEach(function (g, i) {
-      var en = EN ? Object.assign({}, dict[g.nome] || {}, g.en || {}) : {};
+    list.filter(function (g) { return presenti.indexOf(normName(g.nome)) === -1; }).forEach(function (g, i) {
+      var en = EN ? g.en || {} : {};
       var tag = (EN && en.tag) || g.tag || TIPO[g.tipo] || "";
       var card = document.createElement("article");
-      card.className = "flavor tilt reveal";
+      card.className = "flavor flavor--foglio tilt reveal";
       card.style.setProperty("--c", g.colore);
       card.style.setProperty("--d", (i % 3) * 0.08 + "s");
       var scoop = document.createElement("div"); scoop.className = "scoop"; scoop.setAttribute("aria-hidden", "true");
