@@ -19,6 +19,7 @@ Il progetto ripensa il sito attuale ([cremeriascirocco.it](https://www.cremerias
 | **Recensioni** | Carosello automatico di recensioni reali da Google (4,6 ★ su 1.488), scorrimento con il dito e link "Lascia una recensione". |
 | **Orari e mappa** | Indicatore "aperto ora" basato sull'ora di Roma, tabella orari, mappa che si carica da sola e contatti in un tocco. |
 | **Contatti e ordini** | Modulo per torte e gusti su misura con validazione, calendario personalizzato (mercoledì chiuso) e conferma. |
+| **Foglio Google** | Gusti in vetrina, gusti iconici della home, orari e avvisi (ferie, chiusure) si aggiornano da un foglio Google, senza toccare il codice. |
 | **Bilingue** | Versione italiana e inglese (`/en/`), con selettore IT/EN nell'header e tag `hreflang` per i motori di ricerca. |
 | **SEO** | Meta tag e anteprime social per ogni pagina, dati strutturati `IceCreamShop` e `FAQPage` (JSON-LD). |
 
@@ -49,7 +50,8 @@ cremeria-scirocco/
 │   ├── main.js                                  interazioni, caroselli, orari, form, calendario
 │   ├── hero3d.js                                scena 3D dell'hero
 │   ├── gusti.js                                 menu dei gusti con filtri
-│   └── gusti-data.js                            elenco dei gusti in vetrina (IT + EN)
+│   ├── foglio.js                                lettura del foglio Google (gusti, orari, avvisi)
+│   └── gusti-data.js                            gusti di riserva se il foglio non è collegato (IT + EN)
 ├── img/                                         immagini ottimizzate (WebP + JPG/PNG)
 ├── build/
 │   ├── build.mjs                                genera tutte le pagine
@@ -72,8 +74,23 @@ Poi apri <http://localhost:5191>. La versione inglese è su <http://localhost:51
 
 ## Come aggiornare i contenuti
 
-### Gusti in vetrina
-Modifica `js/gusti-data.js`: ogni gusto ha nome, tipo, allergeni, colore e descrizione. Aggiorna anche la data `SCIROCCO_AGGIORNATO`. Per la versione inglese aggiungi il gusto in `SCIROCCO_GUSTI_EN`; se manca, compare in italiano. Non serve rigenerare le pagine.
+### Gusti, orari e avvisi: dal foglio Google
+La gelateria aggiorna questi contenuti da un foglio Google con quattro schede:
+
+| Scheda | Cosa controlla sul sito |
+|---|---|
+| **Gusti** | `In vetrina` = gusti della pagina "Gusti di oggi"; `Iconico` = card "Gusti iconici" della home. Nome, tipo, descrizione, allergeni, etichetta, colore e testi in inglese. |
+| **Orari** | Apertura e chiusura di ogni giorno: tabella orari, "aperto ora", footer e giorni prenotabili nel modulo. |
+| **Avvisi** | Messaggi con date `Dal`/`Al`: striscia sotto l'header (da 10 giorni prima). Con `Chiuso` spuntato, il sito segna la gelateria chiusa in quei giorni. |
+| **Come si usa** | Istruzioni per chi aggiorna il foglio. |
+
+Ogni scheda è pubblicata sul web come CSV (*File → Condividi → Pubblica sul web*) e i tre link sono in `FOGLIO`, dentro `build/data.mjs`. Le modifiche compaiono sul sito entro circa 5 minuti, il tempo di aggiornamento di Google.
+
+- **Se il foglio non risponde** il sito usa gli ultimi dati validi salvati nel browser, oppure quelli di riserva: `js/gusti-data.js` per i gusti e `ORARI` in `build/data.mjs`.
+- **Non rinominare le intestazioni** delle colonne: il sito le usa per leggere i dati. Le colonne in più vengono ignorate.
+- **Colonna Colore:** uno script del foglio (*Estensioni → Apps Script*) colora la cella in base al codice scritto, con testo bianco o nero in automatico.
+
+Senza link in `FOGLIO`, i gusti si modificano in `js/gusti-data.js` (con la data `SCIROCCO_AGGIORNATO` e le traduzioni in `SCIROCCO_GUSTI_EN`).
 
 ### Orari, contatti, prodotti, recensioni
 Modifica `build/data.mjs`, poi rigenera le pagine:

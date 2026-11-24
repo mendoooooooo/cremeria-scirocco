@@ -144,16 +144,28 @@
   } else revealEls.forEach(function (el) { el.classList.add("is-in"); });
 
   /* ---------- orari: "aperto ora" ---------- */
+  // orari e avvisi possono arrivare dal foglio Google della gelateria (js/foglio.js)
   var ORARI = window.SCIROCCO_ORARI || [];
+  var AVVISI = [];
   var EN = doc.lang === "en";
   var NOMI = EN ? ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] : ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+  function isoDay(n) { return n.getFullYear() + "-" + String(n.getMonth() + 1).padStart(2, "0") + "-" + String(n.getDate()).padStart(2, "0"); }
   function romeNow() {
     try {
-      var parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Rome", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
+      var parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Rome", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date());
       var o = {}; parts.forEach(function (p) { o[p.type] = p.value; });
       var d = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(o.weekday);
-      return { d: d, m: (+o.hour % 24) * 60 + +o.minute };
-    } catch (e) { var n = new Date(); return { d: n.getDay(), m: n.getHours() * 60 + n.getMinutes() }; }
+      return { d: d, m: (+o.hour % 24) * 60 + +o.minute, ymd: o.year + "-" + o.month + "-" + o.day };
+    } catch (e) { var n = new Date(); return { d: n.getDay(), m: n.getHours() * 60 + n.getMinutes(), ymd: isoDay(n) }; }
+  }
+  function addDays(ymd, i) { var p = ymd.split("-"); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + i)).toISOString().slice(0, 10); }
+  // chiusura straordinaria (ferie, festività) che copre quel giorno, se c'è
+  function chiusura(ymd) {
+    for (var i = 0; i < AVVISI.length; i++) {
+      var a = AVVISI[i];
+      if (a.chiuso && (a.dal || a.al) && (!a.dal || a.dal <= ymd) && (!a.al || ymd <= a.al)) return a;
+    }
+    return null;
   }
   function toMin(t) { var p = t.split(":"); return +p[0] * 60 + +p[1]; }
   function fmt(t) {
@@ -164,7 +176,7 @@
   function status() {
     var now = romeNow();
     var today = ORARI.filter(function (o) { return o.d === now.d; })[0];
-    if (today && today.open) {
+    if (today && today.open && !chiusura(now.ymd)) {
       var a = toMin(today.open), c = toMin(today.close);
       if (now.m >= a && now.m < c) return EN
         ? { open: true, text: "Open now · closes at " + fmt(today.close), short: "Open now, until " + fmt(today.close) }
@@ -173,11 +185,13 @@
         ? { open: false, text: "Closed · opens today at " + fmt(today.open), short: "Opens today at " + fmt(today.open) }
         : { open: false, text: "Chiuso · apre oggi alle " + fmt(today.open), short: "Apre oggi alle " + fmt(today.open) };
     }
-    for (var i = 1; i <= 7; i++) {
-      var dd = (now.d + i) % 7;
+    for (var i = 1; i <= 90; i++) {
+      var dd = (now.d + i) % 7, ymd = addDays(now.ymd, i);
+      if (chiusura(ymd)) continue;
       var nx = ORARI.filter(function (o) { return o.d === dd && o.open; })[0];
       if (nx) {
-        var quando = i === 1 ? (EN ? "tomorrow" : "domani") : (EN ? "on " : "") + NOMI[dd];
+        var quando = i === 1 ? (EN ? "tomorrow" : "domani") : i < 7 ? (EN ? "on " : "") + NOMI[dd]
+          : (EN ? "on " : "il ") + new Date(ymd + "T12:00:00").toLocaleDateString(EN ? "en-GB" : "it-IT", { day: "numeric", month: "long" });
         return EN
           ? { open: false, text: "Closed · opens " + quando + " at " + fmt(nx.open), short: "Opens " + quando + " at " + fmt(nx.open) }
           : { open: false, text: "Chiuso · apre " + quando + " alle " + fmt(nx.open), short: "Apre " + quando + " alle " + fmt(nx.open) };
@@ -199,6 +213,84 @@
   }
   paintStatus();
   setInterval(paintStatus, 60000);
+
+  // tabella orari e riga del footer, ridisegnate se gli orari arrivano dal foglio
+  function paintHours() {
+    $$("[data-hours] tr").forEach(function (tr) {
+      var o = ORARI.filter(function (x) { return x.d === +tr.getAttribute("data-day"); })[0];
+      var td = tr.children[1];
+      if (!o || !td) return;
+      td.classList.toggle("closed", !o.open);
+      td.textContent = o.open ? o.open.replace(":00", "") + "–" + o.close.replace(":00", "") : (EN ? "Closed" : "Chiuso");
+    });
+    var chiusi = ORARI.filter(function (o) { return !o.open; }).map(function (o) { return o.d; });
+    var art = function (d) { return d === 0 ? "la " : "il "; };
+    var txt = !chiusi.length ? (EN ? "Open every day" : "Orari: tutti i giorni")
+      : chiusi.length === 1 ? (EN ? "Open every day except " + NOMI[chiusi[0]] : "Orari: tutti i giorni tranne " + art(chiusi[0]) + NOMI[chiusi[0]])
+      : (EN ? "Closed on " : "Orari: chiuso ") + chiusi.map(function (d) { return NOMI[d]; }).join(EN ? " and " : " e ");
+    $$("[data-orari-breve]").forEach(function (el) { el.textContent = txt; });
+  }
+
+  // striscia avvisi sotto l'header: compare 10 giorni prima della data "Dal" e sparisce dopo "Al"
+  function paintAvvisi() {
+    var old = $(".avviso-bar"); if (old) old.remove();
+    var ymd = romeNow().ymd;
+    var list = AVVISI.filter(function (a) {
+      return a.msg && (!a.al || ymd <= a.al) && (!a.dal || addDays(a.dal, -10) <= ymd);
+    });
+    doc.classList.toggle("has-avviso", list.length > 0);
+    if (!list.length) return;
+    var bar = document.createElement("div");
+    bar.className = "avviso-bar";
+    bar.setAttribute("role", "status");
+    list.forEach(function (a) {
+      var p = document.createElement("p");
+      p.textContent = EN && a.msgEn ? a.msgEn : a.msg;
+      bar.appendChild(p);
+    });
+    var main = $("#main");
+    if (main) main.parentNode.insertBefore(bar, main);
+  }
+
+  // gusti iconici della home dalla colonna "Iconico" del foglio
+  var flavorGrid = $(".flavor-grid");
+  var lastIconici = "";
+  function paintIconici(list) {
+    if (!flavorGrid || !list || !list.length) return;
+    var key = JSON.stringify(list);
+    if (key === lastIconici) return;
+    lastIconici = key;
+    var dict = window.SCIROCCO_GUSTI_EN || {};
+    var TIPO = EN ? { uova: "Egg-based cream", latte: "Cream", sorbetto: "No milk · no eggs" } : { uova: "Crema all’uovo", latte: "Crema", sorbetto: "Senza latte · senza uova" };
+    flavorGrid.textContent = "";
+    list.forEach(function (g, i) {
+      var en = EN ? Object.assign({}, dict[g.nome] || {}, g.en || {}) : {};
+      var tag = (EN && en.tag) || g.tag || TIPO[g.tipo] || "";
+      var card = document.createElement("article");
+      card.className = "flavor tilt reveal";
+      card.style.setProperty("--c", g.colore);
+      card.style.setProperty("--d", (i % 3) * 0.08 + "s");
+      var scoop = document.createElement("div"); scoop.className = "scoop"; scoop.setAttribute("aria-hidden", "true");
+      var h = document.createElement("h3"); h.textContent = (EN && en.nome) || g.nome;
+      var p = document.createElement("p"); p.textContent = (EN && en.desc) || g.desc;
+      var t = document.createElement("span"); t.className = "tag" + (/premi|award|miglior|best/i.test(g.tag || "") ? " tag--premio" : ""); t.textContent = tag;
+      card.appendChild(scoop); card.appendChild(h); card.appendChild(p);
+      if (tag) card.appendChild(t);
+      flavorGrid.appendChild(card);
+      if (typeof io !== "undefined" && io) io.observe(card); else card.classList.add("is-in");
+      addTilt(card);
+    });
+  }
+
+  function usaFoglio(data) {
+    if (!data) return;
+    paintIconici(data.iconici);
+    if (data.orari && data.orari.length) { ORARI = data.orari; window.SCIROCCO_ORARI = ORARI; paintHours(); }
+    AVVISI = data.avvisi || [];
+    paintStatus(); paintAvvisi();
+  }
+  var FOGLIO = window.SciroccoFoglio;
+  if (FOGLIO && FOGLIO.attivo) { usaFoglio(FOGLIO.data); FOGLIO.on(usaFoglio); }
 
   /* ---------- accordion (FAQ e "come è fatto") ---------- */
   $$("[data-accordion]").forEach(function (group) {
@@ -448,12 +540,13 @@
       : ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
     var GG = NOMI;
     if (EN) { var wk = dp.querySelectorAll(".dp-week span"); "MTWTFSS".split("").forEach(function (l, n) { if (wk[n]) wk[n].textContent = l; }); }
-    var closedDays = (window.SCIROCCO_ORARI || []).filter(function (o) { return !o.open; }).map(function (o) { return o.d; });
+    function closedDays() { return ORARI.filter(function (o) { return !o.open; }).map(function (o) { return o.d; }); }
+    function shut(d) { return closedDays().indexOf(d.getDay()) > -1 || !!chiusura(iso(d)); }
     var today = new Date(); today.setHours(0, 0, 0, 0);
     var view = new Date(today.getFullYear(), today.getMonth(), 1), selected = null, focusDate = new Date(today);
     function iso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
     function same(a, b) { return a && b && a.getTime() === b.getTime(); }
-    function disabled(d) { return d < today || closedDays.indexOf(d.getDay()) > -1; }
+    function disabled(d) { return d < today || shut(d); }
     function render() {
       title.textContent = MESI[view.getMonth()] + " " + view.getFullYear();
       dp.querySelector("[data-dp-prev]").disabled = view <= new Date(today.getFullYear(), today.getMonth(), 1);
@@ -462,7 +555,7 @@
       for (var i = 0; i < offset; i++) html += '<span class="dp-empty"></span>';
       for (var dd = 1; dd <= days; dd++) {
         var d = new Date(view.getFullYear(), view.getMonth(), dd), dis = disabled(d);
-        var cls = "dp-day" + (same(d, today) ? " is-today" : "") + (same(d, selected) ? " is-sel" : "") + (closedDays.indexOf(d.getDay()) > -1 && d >= today ? " is-closed" : "");
+        var cls = "dp-day" + (same(d, today) ? " is-today" : "") + (same(d, selected) ? " is-sel" : "") + (shut(d) && d >= today ? " is-closed" : "");
         html += '<button type="button" class="' + cls + '" data-d="' + iso(d) + '"' + (dis ? " disabled" : "") +
           ' tabindex="' + (same(d, focusDate) ? 0 : -1) + '" aria-pressed="' + same(d, selected) + '" aria-label="' + GG[d.getDay()] + " " + dd + " " + MESI[d.getMonth()] + (dis && d >= today ? (EN ? ", closed" : ", chiuso") : "") + '">' + dd + "</button>";
       }
@@ -611,7 +704,10 @@
   doc.classList.add("has-mouse");
 
   // tilt 3D con riflesso
-  $$(".tilt").forEach(function (card) {
+  $$(".tilt").forEach(addTilt);
+  function addTilt(card) {
+    if (!fine || card.hasAttribute("data-tilt-on")) return;
+    card.setAttribute("data-tilt-on", "");
     var raf = null;
     card.addEventListener("pointermove", function (e) {
       var r = card.getBoundingClientRect();
@@ -629,7 +725,7 @@
       card.style.transition = "";
       card.style.transform = "";
     });
-  });
+  }
 
   // pulsanti magnetici + luce sul pulsante
   $$(".magnetic, .btn").forEach(function (btn) {

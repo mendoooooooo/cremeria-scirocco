@@ -860,7 +860,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--magenta) var(--crema-2); }
 .g-tab small { font-weight: 500; opacity: .6; margin-left: 2px; }
 .g-tab[aria-pressed="true"] { color: var(--crema); }
 .g-row2 { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
-.g-excl { display: flex; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+.g-excl { display: flex; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; max-width: 100%; padding: 4px 2px; margin: -4px -2px; } /* respiro: il bordo delle pillole non viene tagliato dallo scroll */
 .g-excl::-webkit-scrollbar { display: none; }
 .g-excl-label { font-size: .85rem; font-weight: 600; color: var(--testo-2); margin-right: 2px; flex: none; }
 .g-pill { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1.5px solid rgba(5,42,77,.14); background: var(--bianco); font-size: .85rem; font-weight: 500; color: var(--blu-notte); white-space: nowrap; transition: background-color .3s, border-color .3s, color .3s, transform .3s var(--ease-out); }
@@ -1343,3 +1343,20 @@ html.menu-open .quickbar, html.menu-open .to-top { opacity: 0; visibility: hidde
    (100lvh = altezza con le barre ritirate, + margine); spazio in fondo per raggiungere le ultime voci */
 .mobile-menu { bottom: auto; height: 100vh; height: calc(100lvh + 120px); padding-bottom: calc(240px + env(safe-area-inset-bottom, 0px)); }
 html.menu-open, html.menu-open body { background: var(--blu-notte); }
+
+/* ---------- striscia avvisi dal foglio Google (ferie, chiusure, novità) ---------- */
+.avviso-bar {
+  position: relative; z-index: 5;
+  margin-top: var(--header-h); margin-bottom: calc(-1 * var(--header-h));
+  background: var(--magenta); color: #fff;
+  padding: 10px var(--gutter); text-align: center;
+  font-size: .95rem; font-weight: 500; line-height: 1.4;
+}
+.avviso-bar p { margin: 0; }
+.avviso-bar p + p { margin-top: 4px; }
+
+/* "Scopri anche" su desktop: tutti i link su una sola riga, riquadri di uguale larghezza */
+@media (min-width: 1160px) {
+  .other-products { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 10px; }
+  .other-products a { border-radius: 16px; padding: 12px 14px; min-height: 60px; font-size: .9rem; line-height: 1.25; }
+}

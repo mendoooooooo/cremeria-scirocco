@@ -38,6 +38,15 @@ export const ORARI = [
   { d: 0, label: "Domenica", open: "10:00", close: "20:00" },
 ];
 
+// Foglio Google della gelateria (gusti in vetrina, orari, avvisi).
+// Per ogni scheda: File > Condividi > Pubblica sul web > scheda > CSV, e incolla qui il link.
+// Lasciati vuoti, il sito usa js/gusti-data.js e gli ORARI qui sopra.
+export const FOGLIO = {
+  gusti: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXlCOYUxRmvB4LiKNnr6cYxs7Aqh15SOuju6StPfUGLdpwj4M3D9fI0QGaNwLv9ydsADKV0eWZ4nq_/pub?gid=379653183&single=true&output=csv",
+  orari: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXlCOYUxRmvB4LiKNnr6cYxs7Aqh15SOuju6StPfUGLdpwj4M3D9fI0QGaNwLv9ydsADKV0eWZ4nq_/pub?gid=1202687455&single=true&output=csv",
+  avvisi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXlCOYUxRmvB4LiKNnr6cYxs7Aqh15SOuju6StPfUGLdpwj4M3D9fI0QGaNwLv9ydsADKV0eWZ4nq_/pub?gid=1564378297&single=true&output=csv",
+};
+
 export const PRODOTTI = [
   {
     slug: "gelato-classico",

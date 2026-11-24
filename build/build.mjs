@@ -3,7 +3,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { INFO, ORARI, PRODOTTI, RECENSIONI, PREMI } from "./data.mjs";
+import { INFO, ORARI, PRODOTTI, RECENSIONI, PREMI, FOGLIO } from "./data.mjs";
 import { emit } from "./i18n.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -169,7 +169,7 @@ function footer() {
     </div>
     <div class="footer-bottom">
       <span>© ${new Date().getFullYear()} Cremeria Scirocco di Andrea Bandiera · Bologna</span>
-      <span>Orari: ${ORARI.filter((o) => o.open).length === 6 ? "tutti i giorni tranne il mercoledì" : ""}</span>
+      <span data-orari-breve>Orari: ${ORARI.filter((o) => o.open).length === 6 ? "tutti i giorni tranne il mercoledì" : ""}</span>
     </div>
   </div>
 </footer>
@@ -181,7 +181,8 @@ function footer() {
 <button class="to-top" type="button" aria-label="Torna su"><svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle cx="29" cy="29" r="27"/></svg>${I.up}</button>
 <div class="lightbox" role="dialog" aria-modal="true" aria-label="Immagine ingrandita"><button class="lightbox-close" type="button" aria-label="Chiudi">${I.close}</button><img src="" alt=""><p class="lightbox-caption"></p></div>
 <div class="cursor-glow" aria-hidden="true"></div><div class="cursor-dot" aria-hidden="true"></div>
-<script>window.SCIROCCO_ORARI=${JSON.stringify(ORARI.map(({ d, open, close }) => ({ d, open, close })))};</script>
+<script>window.SCIROCCO_ORARI=${JSON.stringify(ORARI.map(({ d, open, close }) => ({ d, open, close })))};window.SCIROCCO_FOGLIO=${JSON.stringify(FOGLIO)};</script>
+<script src="js/foglio.js?v=${V}" defer></script>
 <script src="js/main.js?v=${V}" defer></script>`;
 }
 
@@ -286,7 +287,7 @@ const otherProducts = (except) => `
 <section class="section--tight" style="background:var(--crema-2)">
   <div class="container">
     <h2 class="h3 reveal" style="margin-bottom:24px">Scopri anche</h2>
-    <div class="other-products">${PRODOTTI.filter((p) => p.slug !== except).map((p, i) => `<a class="reveal" style="--d:${i * 0.05}s" href="${p.slug}.html"><i class="op-dot" style="--c:${p.color}"></i><span>${p.nome}</span>${I.arrow}</a>`).join("")}<a class="reveal" href="gusti.html"><i class="op-dot" style="--c:var(--verde)"></i><span>Gusti di oggi</span>${I.arrow}</a></div>
+    <div class="other-products">${PRODOTTI.filter((p) => p.slug !== except).map((p, i) => `<a class="reveal" style="--d:${i * 0.05}s" href="${p.slug}.html"><i class="op-dot" style="--c:${p.color}"></i><span>${p.nome}</span>${I.arrow}</a>`).join("")}${except === "gusti" ? "" : `<a class="reveal" href="gusti.html"><i class="op-dot" style="--c:var(--verde)"></i><span>Gusti di oggi</span>${I.arrow}</a>`}</div>
   </div>
 </section>`;
 
@@ -580,7 +581,7 @@ page({
     </div>
   </div>
 </section>
-${otherProducts("")}
+${otherProducts("gusti")}
 `,
   extraScripts: `<script src="js/gusti-data.js?v=${V}"></script>
 <script src="js/gusti.js?v=${V}" defer></script>`,

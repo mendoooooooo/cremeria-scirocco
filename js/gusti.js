@@ -3,12 +3,17 @@
 (function () {
   "use strict";
   var EN = document.documentElement.lang === "en";
-  var GUSTI = (window.SCIROCCO_GUSTI || []).map(function (g) {
-    if (!EN) return g;
-    var t = (window.SCIROCCO_GUSTI_EN || {})[g.nome] || {};
-    // in inglese tengo anche il nome italiano nella ricerca
-    return Object.assign({}, g, { nome: t.nome || g.nome, desc: t.desc || g.desc, tag: t.tag || g.tag, it: g.nome });
-  });
+  // traduzione: prima le colonne inglesi del foglio Google, poi SCIROCCO_GUSTI_EN
+  function localize(list) {
+    return list.map(function (g) {
+      if (!EN) return g;
+      var t = Object.assign({}, (window.SCIROCCO_GUSTI_EN || {})[g.nome] || {});
+      if (g.en) ["nome", "desc", "tag"].forEach(function (k) { if (g.en[k]) t[k] = g.en[k]; });
+      // in inglese tengo anche il nome italiano nella ricerca
+      return Object.assign({}, g, { nome: t.nome || g.nome, desc: t.desc || g.desc, tag: t.tag || g.tag, it: g.nome });
+    });
+  }
+  var GUSTI = [];
   var ALG_EN = { latticini: "dairy", uova: "eggs", "frutta a guscio": "nuts", solfiti: "sulphites" };
   var grid = document.querySelector("[data-g-grid]");
   if (!grid) return;
@@ -33,23 +38,42 @@
     return (r * 299 + g * 587 + b * 114) / 1000 > 200;
   }
 
-  /* data aggiornamento e totale */
-  var d = window.SCIROCCO_AGGIORNATO ? new Date(window.SCIROCCO_AGGIORNATO + "T12:00:00") : null;
-  document.querySelectorAll("[data-g-date]").forEach(function (el) {
-    el.textContent = d ? d.toLocaleDateString(EN ? "en-GB" : "it-IT", { day: "numeric", month: "long", year: "numeric" }) : "";
-  });
-  document.querySelectorAll("[data-g-total]").forEach(function (el) { el.textContent = GUSTI.length; });
-  ["tutti", "uova", "latte", "sorbetto"].forEach(function (t) {
-    var el = document.querySelector('[data-count="' + t + '"]');
-    if (el) el.textContent = t === "tutti" ? GUSTI.length : GUSTI.filter(function (g) { return g.tipo === t; }).length;
-  });
-
-  /* vetrina nell'hero: una pallina per ogni gusto */
   var vet = document.querySelector("[data-vetrina]");
+  var cards = [];
+  var io = "IntersectionObserver" in window && !reduce ? new IntersectionObserver(function (en) {
+    en.forEach(function (e) {
+      if (e.isIntersecting) {
+        var idx = cards.indexOf(e.target);
+        e.target.style.transitionDelay = (idx % 3) * 70 + "ms";
+        e.target.classList.add("is-in");
+        setTimeout(function () { e.target.style.transitionDelay = ""; }, 900);
+        io.unobserve(e.target);
+      }
+    });
+  }, { rootMargin: "0px 0px -6% 0px" }) : null;
+
+  /* disegna data, contatori, vetrina e card (richiamata di nuovo se il foglio Google cambia) */
+  function build(list, aggiornato) {
+    GUSTI = localize(list);
+    var d = aggiornato ? new Date(aggiornato) : window.SCIROCCO_AGGIORNATO ? new Date(window.SCIROCCO_AGGIORNATO + "T12:00:00") : null;
+    document.querySelectorAll("[data-g-date]").forEach(function (el) {
+      el.textContent = d ? d.toLocaleDateString(EN ? "en-GB" : "it-IT", { day: "numeric", month: "long", year: "numeric" }) : "";
+    });
+    document.querySelectorAll("[data-g-total]").forEach(function (el) { el.textContent = GUSTI.length; });
+    ["tutti", "uova", "latte", "sorbetto"].forEach(function (t) {
+      var el = document.querySelector('[data-count="' + t + '"]');
+      if (el) el.textContent = t === "tutti" ? GUSTI.length : GUSTI.filter(function (g) { return g.tipo === t; }).length;
+    });
+    if (vet) {
+      vet.innerHTML = GUSTI.map(function (g, i) {
+        return '<span class="v-scoop' + (light(g.colore) ? " is-light" : "") + '" style="--c:' + g.colore + ";--i:" + i + '"><i></i><b>' + esc(g.nome) + "</b></span>";
+      }).join("");
+    }
+    buildCards();
+  }
+
+  /* vetrina nell'hero: inclinazione col mouse */
   if (vet) {
-    vet.innerHTML = GUSTI.map(function (g, i) {
-      return '<span class="v-scoop' + (light(g.colore) ? " is-light" : "") + '" style="--c:' + g.colore + ";--i:" + i + '"><i></i><b>' + esc(g.nome) + "</b></span>";
-    }).join("");
     if (fine && !reduce) {
       var hero = vet.closest(".page-hero");
       hero.addEventListener("pointermove", function (e) {
@@ -62,6 +86,7 @@
   }
 
   /* card */
+  function buildCards() {
   grid.innerHTML = GUSTI.map(function (g, i) {
     var t = TIPI[g.tipo] || TIPI.latte;
     var alg = g.allergeni.length
@@ -77,23 +102,11 @@
       '<ul class="g-algs" aria-label="Allergeni">' + alg + "</ul>" +
       "</div></article>";
   }).join("");
-  var cards = Array.prototype.slice.call(grid.children);
+  cards = Array.prototype.slice.call(grid.children);
 
   // comparsa a cascata
-  if ("IntersectionObserver" in window && !reduce) {
-    var io = new IntersectionObserver(function (en) {
-      en.forEach(function (e) {
-        if (e.isIntersecting) {
-          var idx = cards.indexOf(e.target);
-          e.target.style.transitionDelay = (idx % 3) * 70 + "ms";
-          e.target.classList.add("is-in");
-          setTimeout(function () { e.target.style.transitionDelay = ""; }, 900);
-          io.unobserve(e.target);
-        }
-      });
-    }, { rootMargin: "0px 0px -6% 0px" });
-    cards.forEach(function (c) { io.observe(c); });
-  } else cards.forEach(function (c) { c.classList.add("is-in"); });
+  if (io) cards.forEach(function (c) { io.observe(c); });
+  else cards.forEach(function (c) { c.classList.add("is-in"); });
 
   // tilt leggero
   if (fine && !reduce) {
@@ -108,6 +121,7 @@
       });
       card.addEventListener("pointerleave", function () { card.style.removeProperty("--rx"); card.style.removeProperty("--ry"); });
     });
+  }
   }
 
   /* filtri */
@@ -204,5 +218,20 @@
   });
   window.addEventListener("resize", moveInd);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInd);
-  moveInd(); apply();
+  moveInd();
+
+  /* dati: foglio Google se collegato (js/foglio.js), altrimenti js/gusti-data.js */
+  var lastKey = "";
+  function show(data) {
+    var dalFoglio = !!(data && data.gusti);
+    var list = dalFoglio ? data.gusti : window.SCIROCCO_GUSTI || [];
+    var key = JSON.stringify(list);
+    if (key === lastKey) return;
+    lastKey = key;
+    build(list, dalFoglio ? data.agg : null);
+    apply();
+  }
+  var F = window.SciroccoFoglio;
+  if (F && F.attivo) { F.pronto(show, 1500); F.on(show); }
+  else show(null);
 })();
